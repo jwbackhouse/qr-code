@@ -1,0 +1,11 @@
+{
+    "appName": {
+        "message": "QR code"
+    },
+    "appShortName": {
+        "message": "QR code"
+    },
+    "appDescription": {
+        "message": "Converts QR codes into hyperlinks."
+    }
+}

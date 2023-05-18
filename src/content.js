@@ -4,22 +4,58 @@ const codeReader = new BrowserQRCodeReader();
 const svgs = document.querySelectorAll('svg');
 const images = document.querySelectorAll('img');
 
-const getPng = (image) => {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  const svgString = new XMLSerializer().serializeToString(image);
-  const DOMURL = window.URL || window.webkitURL || window;
-  const img = new Image();
-  const svg = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
-  const url = DOMURL.createObjectURL(svg);
-  context?.drawImage(img, 0, 0);
-  const png = canvas.toDataURL('image/png');
-  img.src = url;
+const getBase64String = (svg) => {
+  const svgString = new XMLSerializer().serializeToString(svg);
+  const svgData = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
 
-  return img;
+  const DOMURL = window.URL || window.webkitURL || window;
+  return DOMURL.createObjectURL(svgData);
+}
+
+const loadImage = (url) => new Promise((resolve, reject) => {
+  const img = new Image(); // alt: document.createElement('img')
+  img.addEventListener('load', () => resolve(img));
+  img.addEventListener('error', (err) => reject(err));
+  img.src = url;
+});
+
+// const _img = await loadImage(getBase64String(svg));
+
+const getPng = async (svg) => {
+  const base64String = getBase64String(svg);
+  const image = await loadImage(base64String);
+  
+  const imgH =image.naturalHeight * 1.1; // original file height
+  const imgW =image.naturalWidth * 1.1; // original file width
+
+  const scale = window.devicePixelRatio*2;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = imgW;
+  canvas.height = imgH;
+  canvas['style']['width'] = `${Math.round(imgW/scale)}px`;
+  canvas['style']['height'] = `${Math.round(imgH/scale)}px`;
+  canvas['style']['margin'] = '5px';
+  canvas['style']['padding'] = '5px';
+
+  const context = canvas.getContext('2d');
+  context?.scale(scale, scale);
+
+  context?.drawImage(image, 0, 0, Math.round(imgW/scale), Math.round(imgH/scale))
+
+  const dataUrl = canvas.toDataURL('image/png');
+  // console.log('dataUrl: ', dataUrl);
+  image.src = dataUrl
+  image.style.width = `250px`;
+  image.style.height = `250px`;
+  image.style.margin = '5px';
+  image.style.padding = '5px';
+
+  return image;
+
 };
 
-const getQrCode = (image) =>
+const getQrCodeFromImage = (image) =>
   codeReader.decodeFromImageElement(image).then((result) => {
     if (result) {
       const wrapper = document.createElement('a');
@@ -40,15 +76,28 @@ const getQrCode = (image) =>
     console.error(err);
   });
 
-// TODO cap number of images
-for (const image of images) {
-  getQrCode(image);
-}
+  const getQrCodeFromUrl = (url) =>
+    codeReader.decodeFromImageUrl(url).then((result) => {
+      if (result) {
+        console.log('result: ', result.getText());
+      }
+    }).catch(() => {
+      console.error('ERROR');
+    });
 
-for (const svg of svgs) {
-  const img = getPng(svg);
-  getQrCode(img);
-}
+
+// TODO cap number of images
+// for (const image of images) {
+//   console.log('image: ', image);
+//   getQrCode(image);
+// }
+
+(async () => {
+  for (const svg of svgs) {
+    const img = await getPng(svg);
+    getQrCodeFromUrl(img.src);
+  }
+})();
 
 // const getQrCode = (image) => {
 //   if (!image.width || !image.height) {

@@ -99,14 +99,12 @@ const getSuccessMessage = () => {
 };
   
 (async () => {
-  console.info('Searching for QR codes...');
-  
   for (const image of images) {
     try {
       const link = await getLinkFromImage(image);
       wrapCodeInLink(link, image);
-    } catch (err) {
-      console.warn('Valid QR code not found in image:', err);
+    } catch {
+      continue;
     }
   }
 
@@ -115,12 +113,10 @@ const getSuccessMessage = () => {
       const imageUrl = await getImageUrl(svg);
       const link = await getLinkFromUrl(imageUrl);
       wrapCodeInLink(link, svg);
-    } catch (err) {
-      console.warn('Valid QR code not found in SVG:', err);
+    } catch {
+      continue;
     }
   }
 
   chrome.runtime.sendMessage(getSuccessMessage());
-
-  console.info(getSuccessMessage());
 })();

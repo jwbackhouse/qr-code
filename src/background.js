@@ -1,10 +1,10 @@
 const updatePopup = (message) => {
-  const views = chrome.extension.getViews({
+  const [popup] = chrome.extension.getViews({
     type: "popup"
   })
-  views.forEach((view) => {
-    view.document.getElementById('msg').innerHTML = message;
-  });
+  popup.document.getElementById('msg').innerHTML = message;
+  popup.document.getElementById('animation-container').style.maxHeight = '0';
+  popup.document.getElementById('animation').remove()
 };
 
 const messageListener = (message) =>

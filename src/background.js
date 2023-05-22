@@ -1,10 +1,19 @@
-const updatePopup = (message) => {
+const updatePopup = ({type, message}) => {
   const [popup] = chrome.extension.getViews({
     type: "popup"
   })
-  popup.document.getElementById('msg').innerHTML = message;
-  popup.document.getElementById('animation-container').style.maxHeight = '0';
-  popup.document.getElementById('animation').remove()
+  
+  if (type === 'start') {
+    setTimeout(() => {
+      popup.document.getElementById('animation').style.display = 'flex';
+    }, 750);
+  }
+
+  if (type === 'end') {
+    popup.document.getElementById('msg').innerHTML = message;
+    popup.document.getElementById('animation-container').remove();
+    loadingElement.style.maxHeight = '0';
+  }
 };
 
 const messageListener = (message) =>

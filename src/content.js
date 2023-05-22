@@ -95,10 +95,11 @@ const getSuccessMessage = () => {
   if (!linkedQrCodes) {
     return 'No valid QR codes found';
   }
-  return linkedQrCodes === 1 ? '1 QR code link added' : `${linkedQrCodes} QR code links added`;
+  return linkedQrCodes === 1 ? 'One QR code linked 🚀' : `${linkedQrCodes} QR codes linked 🚀`;
 };
   
 (async () => {
+  chrome.runtime.sendMessage({type: 'start'});
   for (const image of images) {
     try {
       const link = await getLinkFromImage(image);
@@ -118,5 +119,5 @@ const getSuccessMessage = () => {
     }
   }
 
-  chrome.runtime.sendMessage(getSuccessMessage());
+  chrome.runtime.sendMessage({type: 'end', message: getSuccessMessage()});
 })();

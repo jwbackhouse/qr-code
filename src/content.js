@@ -120,5 +120,7 @@ const getSuccessMessage = () => {
     }
   }
 
+  chrome.runtime.sendMessage(getSuccessMessage());
+
   console.info(getSuccessMessage());
 })();
